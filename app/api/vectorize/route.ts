@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import potrace from 'potrace';
-import Jimp from 'jimp';
+
 
 export async function POST(req: Request) {
     try {
