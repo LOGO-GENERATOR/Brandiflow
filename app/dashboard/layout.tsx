@@ -1,7 +1,7 @@
 import { DashboardSidebar } from '@/components/DashboardSidebar';
 import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
-import { authOptions } from '../api/auth/[...nextauth]/route';
+import { authOptions } from '@/lib/auth';
 
 export default async function DashboardLayout({
     children,
@@ -11,7 +11,7 @@ export default async function DashboardLayout({
     const session = await getServerSession(authOptions);
 
     if (!session) {
-        // redirect('/api/auth/signin'); // Uncomment to enforce auth
+        redirect('/auth/signin');
     }
 
     return (
