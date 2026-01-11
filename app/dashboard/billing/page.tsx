@@ -24,15 +24,11 @@ export default function BillingPage() {
 
             if (!response.ok) throw new Error(data.error);
 
-            const stripe = await stripePromise;
-            if (!stripe) throw new Error("Stripe failed to initialize");
-
-            // Redirect to Checkout
-            const { error } = await (stripe as any).redirectToCheckout({
-                sessionId: data.sessionId,
-            });
-
-            if (error) throw error;
+            if (data.url) {
+                window.location.href = data.url;
+            } else {
+                throw new Error("No checkout URL returned");
+            }
 
         } catch (error: any) {
             console.error(error);
@@ -48,72 +44,99 @@ export default function BillingPage() {
                 <p className="text-slate-500 max-w-2xl mx-auto">Unlock professional features like Batch Generation, Brand Kits, and 4K Upscaling.</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
 
-                {/* Free Plan */}
-                <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-8 shadow-sm relative overflow-hidden">
-                    <h3 className="text-xl font-bold text-slate-900 dark:text-white">Starter</h3>
-                    <p className="text-4xl font-extrabold mt-4 text-slate-900 dark:text-white">$0 <span className="text-lg font-medium text-slate-500">/mo</span></p>
-                    <p className="text-slate-500 mt-2">Perfect for trying out the generator.</p>
+                {/* Starter Plan */}
+                <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm relative overflow-hidden flex flex-col h-full">
+                    <h3 className="text-xl font-bold text-slate-900 dark:text-white">Brandiflow Starter</h3>
+                    <p className="text-3xl font-extrabold mt-4 text-slate-900 dark:text-white">$2.99 <span className="text-sm font-medium text-slate-500">/mo</span></p>
+                    <p className="text-sm text-slate-500 mt-2">Good for hobbyists.</p>
 
-                    <ul className="mt-8 space-y-4">
-                        <li className="flex items-center gap-3 text-slate-600 dark:text-slate-300">
-                            <Check className="w-5 h-5 text-green-500" /> 5 Logos / month
+                    <ul className="mt-6 space-y-3 flex-1">
+                        <li className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+                            <Check className="w-4 h-4 text-green-500" /> 50 Logos / month
                         </li>
-                        <li className="flex items-center gap-3 text-slate-600 dark:text-slate-300">
-                            <Check className="w-5 h-5 text-green-500" /> Standard Resolution (1024px)
-                        </li>
-                        <li className="flex items-center gap-3 text-slate-600 dark:text-slate-300">
-                            <Check className="w-5 h-5 text-green-500" /> Basic Editor
+                        <li className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+                            <Check className="w-4 h-4 text-green-500" /> Standard Res
                         </li>
                     </ul>
 
-                    <button disabled className="mt-8 w-full bg-slate-100 dark:bg-slate-800 text-slate-400 font-semibold py-3 rounded-xl cursor-not-allowed">
-                        Current Plan
+                    <button
+                        onClick={() => handleUpgrade('price_1SoSmgRrx4ZlQJlKEgMdyyJA', 'STARTER')}
+                        disabled={isLoading}
+                        className="mt-6 w-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-900 dark:text-white font-semibold py-3 rounded-xl transition-all"
+                    >
+                        {isLoading ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : 'Subscribe'}
                     </button>
                 </div>
 
                 {/* Pro Plan */}
-                <div className="bg-gradient-to-br from-slate-900 to-slate-800 dark:from-blue-900/20 dark:to-purple-900/20 rounded-2xl border border-blue-500/30 p-8 shadow-xl relative overflow-hidden ring-2 ring-blue-500/50">
-                    <div className="absolute top-0 right-0 bg-blue-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">POPULAR</div>
+                <div className="bg-gradient-to-br from-slate-900 to-slate-800 dark:from-blue-900/20 dark:to-purple-900/20 rounded-2xl border border-blue-500/30 p-6 shadow-xl relative overflow-hidden ring-2 ring-blue-500/50 flex flex-col h-full transform md:-translate-y-4">
+                    <div className="absolute top-0 right-0 bg-blue-500 text-white text-[10px] font-bold px-2 py-1 rounded-bl-lg">POPULAR</div>
 
-                    <h3 className="text-xl font-bold text-white">Pro Studio</h3>
-                    <p className="text-4xl font-extrabold mt-4 text-white">$9.99 <span className="text-lg font-medium text-slate-400">/mo</span></p>
-                    <p className="text-slate-400 mt-2">Professional grade tools for less.</p>
+                    <h3 className="text-xl font-bold text-white">Professional</h3>
+                    <p className="text-3xl font-extrabold mt-4 text-white">$9.99 <span className="text-sm font-medium text-slate-400">/mo</span></p>
+                    <p className="text-sm text-slate-400 mt-2">For serious creators.</p>
 
-                    <ul className="mt-8 space-y-4">
-                        <li className="flex items-center gap-3 text-white">
-                            <div className="bg-green-500/20 p-1 rounded-full"><Check className="w-4 h-4 text-green-400" /></div>
+                    <ul className="mt-6 space-y-3 flex-1">
+                        <li className="flex items-center gap-2 text-sm text-white">
+                            <div className="bg-green-500/20 p-1 rounded-full"><Check className="w-3 h-3 text-green-400" /></div>
                             <strong>500 Logos / month</strong>
                         </li>
-                        <li className="flex items-center gap-3 text-white">
-                            <div className="bg-green-500/20 p-1 rounded-full"><Check className="w-4 h-4 text-green-400" /></div>
-                            <strong>Batch Generation (2x)</strong>
+                        <li className="flex items-center gap-2 text-sm text-white">
+                            <div className="bg-green-500/20 p-1 rounded-full"><Check className="w-3 h-3 text-green-400" /></div>
+                            Batch Gen (2x)
                         </li>
-                        <li className="flex items-center gap-3 text-white">
-                            <div className="bg-green-500/20 p-1 rounded-full"><Check className="w-4 h-4 text-green-400" /></div>
-                            <strong>SVG Vector Export</strong>
+                        <li className="flex items-center gap-2 text-sm text-white">
+                            <div className="bg-green-500/20 p-1 rounded-full"><Check className="w-3 h-3 text-green-400" /></div>
+                            Vector & Upscale
                         </li>
-                        <li className="flex items-center gap-3 text-white">
-                            <div className="bg-green-500/20 p-1 rounded-full"><Check className="w-4 h-4 text-green-400" /></div>
-                            <strong>4K Upscaling (High Res)</strong>
-                        </li>
-                        <li className="flex items-center gap-3 text-white">
-                            <div className="bg-green-500/20 p-1 rounded-full"><Check className="w-4 h-4 text-green-400" /></div>
-                            Brand Kit (Colors & Fonts)
+                        <li className="flex items-center gap-2 text-sm text-white">
+                            <div className="bg-green-500/20 p-1 rounded-full"><Check className="w-3 h-3 text-green-400" /></div>
+                            Brand Kits
                         </li>
                     </ul>
 
                     <button
                         onClick={() => handleUpgrade('price_1SoSmhRrx4ZlQJlKOmsEWLhq', 'PRO')}
                         disabled={isLoading}
-                        className="mt-8 w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-500/40 transition-all hover:scale-[1.02] flex items-center justify-center gap-2"
+                        className="mt-6 w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl shadow-lg shadow-blue-500/40 transition-all hover:scale-[1.02] flex items-center justify-center gap-2"
                     >
-                        {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <CreditCard className="w-5 h-5" />}
+                        {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <CreditCard className="w-4 h-4" />}
                         Upgrade to Pro
                     </button>
-                    <p className="text-xs text-center text-slate-500 mt-4">Secure payment via Stripe. Cancel anytime.</p>
                 </div>
+
+                {/* Business Plan */}
+                <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm relative overflow-hidden flex flex-col h-full">
+                    <h3 className="text-xl font-bold text-slate-900 dark:text-white">Business</h3>
+                    <p className="text-3xl font-extrabold mt-4 text-slate-900 dark:text-white">$39.99 <span className="text-sm font-medium text-slate-500">/mo</span></p>
+                    <p className="text-sm text-slate-500 mt-2">High volume agency use.</p>
+
+                    <ul className="mt-6 space-y-3 flex-1">
+                        <li className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+                            <Check className="w-4 h-4 text-green-500" /> 5,000 Logos / month
+                        </li>
+                        <li className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+                            <Check className="w-4 h-4 text-green-500" /> Priority Support
+                        </li>
+                        <li className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+                            <Check className="w-4 h-4 text-green-500" /> Commercial Rights
+                        </li>
+                        <li className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+                            <Check className="w-4 h-4 text-green-500" /> API Access (Beta)
+                        </li>
+                    </ul>
+
+                    <button
+                        onClick={() => handleUpgrade('price_1SoSmiRrx4ZlQJlK8BFl7vgz', 'BUSINESS')}
+                        disabled={isLoading}
+                        className="mt-6 w-full bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-200 text-white dark:text-slate-900 font-semibold py-3 rounded-xl transition-all"
+                    >
+                        {isLoading ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : 'Go Business'}
+                    </button>
+                </div>
+
             </div>
         </div>
     );
