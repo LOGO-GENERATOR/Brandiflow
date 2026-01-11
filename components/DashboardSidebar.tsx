@@ -44,13 +44,50 @@ export function DashboardSidebar() {
             </nav>
             <div className="p-4 border-t border-slate-800">
                 <CreditsDisplay />
+                <UserProfile />
             </div>
         </div>
     );
 }
 
-import { useSession } from 'next-auth/react';
+import { useSession, signOut } from 'next-auth/react';
 import { useEffect, useState } from 'react';
+import { LogOut, User as UserIcon } from 'lucide-react';
+
+function UserProfile() {
+    const { data: session } = useSession();
+
+    if (!session?.user) return null;
+
+    return (
+        <div className="mt-4 pt-4 border-t border-slate-800 flex items-center gap-3">
+            {session.user.image ? (
+                <img
+                    src={session.user.image}
+                    alt={session.user.name || 'User'}
+                    className="w-10 h-10 rounded-full border border-slate-700"
+                />
+            ) : (
+                <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center border border-slate-600">
+                    <UserIcon className="w-5 h-5 text-slate-400" />
+                </div>
+            )}
+
+            <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-white truncate">{session.user.name}</p>
+                <p className="text-xs text-slate-500 truncate">{session.user.email}</p>
+            </div>
+
+            <button
+                onClick={() => signOut()}
+                className="p-2 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-red-400 transition-colors"
+                title="Sign Out"
+            >
+                <LogOut className="w-4 h-4" />
+            </button>
+        </div>
+    );
+}
 
 function CreditsDisplay() {
     const { data: session } = useSession();
