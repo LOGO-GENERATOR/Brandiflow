@@ -105,7 +105,7 @@ export default function BillingPage() {
                     </ul>
 
                     <button
-                        onClick={() => handleUpgrade('price_1SoSmhRrx4ZIQJlKOmSEWLhq', 'PRO')}
+                        onClick={() => handleUpgrade('price_1SoSmhRrx4ZlQJlKOmsEWLhq', 'PRO')}
                         disabled={isLoading}
                         className="mt-8 w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-500/40 transition-all hover:scale-[1.02] flex items-center justify-center gap-2"
                     >
