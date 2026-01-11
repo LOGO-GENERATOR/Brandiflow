@@ -11,6 +11,18 @@ const PLAN_LIMITS = {
     BUSINESS: 5000
 };
 
+const { z } = require('zod');
+
+const generateSchema = z.object({
+    prompt: z.string().min(1, "Prompt is required").max(1000, "Prompt is too long"),
+    projectId: z.string().uuid().optional().default('00000000-0000-0000-0000-000000000000'),
+    style: z.string().optional(),
+    color: z.string().optional(),
+    icon: z.string().optional(),
+    model: z.string().optional(), // 'SDXL1.0-base'
+    quality: z.string().optional(),
+});
+
 export async function POST(req: Request) {
     try {
         const session = await getServerSession(authOptions);
@@ -20,11 +32,17 @@ export async function POST(req: Request) {
         }
 
         const body = await req.json();
-        const prompt = body.prompt;
 
-        if (!prompt) {
-            return NextResponse.json({ error: 'Prompt is required' }, { status: 400 });
+        // Zod Validation
+        const validation = generateSchema.safeParse(body);
+        if (!validation.success) {
+            return NextResponse.json({
+                error: 'Validation Failed',
+                details: validation.error.format()
+            }, { status: 400 });
         }
+
+        const { prompt, projectId } = validation.data;
 
         // 1. Get or Create Profile
         let { data: profile } = await supabaseAdmin
@@ -124,8 +142,8 @@ export async function POST(req: Request) {
         // 4. Process Results & Save
         const logoRecords = [];
 
-        // Determine Project ID once
-        let finalProjectId = body.projectId;
+        // Determine Project ID
+        let finalProjectId = projectId;
         if (!finalProjectId || finalProjectId === '00000000-0000-0000-0000-000000000000') {
             const { data: defaultProject } = await supabaseAdmin
                 .from('projects')
