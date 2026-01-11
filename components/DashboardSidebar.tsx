@@ -43,14 +43,62 @@ export function DashboardSidebar() {
                 })}
             </nav>
             <div className="p-4 border-t border-slate-800">
-                <div className="bg-slate-800/50 rounded-lg p-4">
-                    <p className="text-xs text-slate-400 mb-2">Credits Used</p>
-                    <div className="w-full bg-slate-700 rounded-full h-2 mb-1">
-                        <div className="bg-blue-500 h-2 rounded-full w-[40%]"></div>
-                    </div>
-                    <p className="text-xs text-right text-slate-400">2/5 Free</p>
+                <CreditsDisplay />
+            </div>
+        </div>
+    );
+}
+
+import { useSession } from 'next-auth/react';
+import { useEffect, useState } from 'react';
+
+function CreditsDisplay() {
+    const { data: session } = useSession();
+    const [usage, setUsage] = useState({ used: 0, limit: 5, plan: 'Free' });
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        if (session?.user) {
+            fetch('/api/user/usage')
+                .then(res => res.json())
+                .then(data => {
+                    setUsage(data);
+                    setLoading(false);
+                })
+                .catch(err => console.error(err));
+        }
+    }, [session]);
+
+    const isUnlimited = (usage as any).role === 'admin' || (usage as any).role === 'super_admin';
+
+    if (loading) return <div className="animate-pulse h-12 bg-slate-800 rounded-lg"></div>;
+
+    if (isUnlimited) {
+        return (
+            <div className="bg-gradient-to-r from-amber-500/20 to-yellow-500/20 border border-amber-500/30 rounded-lg p-4">
+                <p className="text-xs text-amber-500 font-bold mb-1">SUPER ADMIN</p>
+                <div className="flex items-center gap-2">
+                    <span className="text-white font-bold text-sm">Unlimited Access</span>
                 </div>
             </div>
+        );
+    }
+
+    const percentage = Math.min((usage.used / usage.limit) * 100, 100);
+
+    return (
+        <div className="bg-slate-800/50 rounded-lg p-4 transition-all">
+            <p className="text-xs text-slate-400 mb-2 flex justify-between">
+                <span>Credits Used</span>
+                <span className="text-white font-medium">{usage.plan}</span>
+            </p>
+            <div className="w-full bg-slate-700 rounded-full h-2 mb-2 overflow-hidden">
+                <div
+                    className="bg-blue-500 h-2 rounded-full transition-all duration-500"
+                    style={{ width: `${percentage}%` }}
+                ></div>
+            </div>
+            <p className="text-xs text-right text-slate-400">{usage.used} / {usage.limit}</p>
         </div>
     );
 }

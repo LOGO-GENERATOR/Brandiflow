@@ -75,7 +75,7 @@ export async function POST(req: Request) {
         // Let's count them as N logos.
         const BATCH_SIZE = 2;
 
-        if (role !== 'admin' && (currentUsage + BATCH_SIZE) > limit) {
+        if (role !== 'admin' && role !== 'super_admin' && (currentUsage + BATCH_SIZE) > limit) {
             return NextResponse.json({
                 error: `Limit reached. You need ${BATCH_SIZE} credits but have ${limit - currentUsage} left.`,
                 limit,
