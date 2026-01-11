@@ -54,6 +54,10 @@ export async function POST(req: Request) {
             profile = newProfile;
         }
 
+        if (!profile) {
+            return NextResponse.json({ error: 'Profile not found and creation failed' }, { status: 500 });
+        }
+
         const role = profile.role || 'user';
         const plan = profile.billing_plan || 'FREE';
         const limit = PLAN_LIMITS[plan as keyof typeof PLAN_LIMITS] || PLAN_LIMITS.FREE;
