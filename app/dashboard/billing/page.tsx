@@ -78,8 +78,8 @@ export default function BillingPage() {
                     <div className="absolute top-0 right-0 bg-blue-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">POPULAR</div>
 
                     <h3 className="text-xl font-bold text-white">Pro Studio</h3>
-                    <p className="text-4xl font-extrabold mt-4 text-white">$29 <span className="text-lg font-medium text-slate-400">/mo</span></p>
-                    <p className="text-slate-400 mt-2">For serious brands and designers.</p>
+                    <p className="text-4xl font-extrabold mt-4 text-white">$9.99 <span className="text-lg font-medium text-slate-400">/mo</span></p>
+                    <p className="text-slate-400 mt-2">Professional grade tools for less.</p>
 
                     <ul className="mt-8 space-y-4">
                         <li className="flex items-center gap-3 text-white">
