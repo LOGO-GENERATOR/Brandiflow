@@ -17,6 +17,9 @@ export async function GET(req: Request) {
         .eq('email', session.user.email)
         .single();
 
+    console.log('[API Usage] Session Email:', session.user.email);
+    console.log('[API Usage] Profile Found:', profile ? profile.id : 'NONE');
+
     if (!profile) return NextResponse.json({ used: 0, limit: 5, plan: 'FREE' });
 
     const { data: usage } = await supabaseAdmin
