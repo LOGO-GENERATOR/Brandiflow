@@ -2,7 +2,8 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { supabaseAdmin } from '@/lib/supabase-admin';
-import sharp from 'sharp';
+// Use require to avoid ESM default export issues with Jimp v0.x/v1.x in Next.js
+const Jimp = require('jimp');
 
 export async function POST(req: Request) {
     try {
@@ -22,31 +23,18 @@ export async function POST(req: Request) {
         console.log(`[Upscale] Starting for ${imageId}...`);
 
         // 1. Fetch Image
-        const response = await fetch(imageUrl);
-        const arrayBuffer = await response.arrayBuffer();
-        const buffer = Buffer.from(arrayBuffer);
+        // Jimp can read directly from URL
+        console.log(`[Upscale] Reading image from ${imageUrl}...`);
+        const image = await Jimp.read(imageUrl);
 
-        // 2. Upscale with Sharp
-        // Target: 4K (roughly 4096px width or height)
-        // We use a high quality resize kernel (lanczos3 is default for sharp but let's be explicit if needed, or just standard)
-        // AI Upscaling (Super Resolution) is better done by an external API (like Hyperbolic/Stability), 
-        // but 'sharp' provides a "dumb" upscale. 
-        // User asked for "Professional". 
-        // "Real" upscaling requires AI. Resizing with sharp is just interpolation.
-        // However, for vector-like logos, standard bicubic/lanczos is often "okay" but not "AI 4K".
-        // BUT, given the scope and "Pixella Clone" local ambition, let's start with Sharp interpolation 
-        // and if user complains we switch to an API. 
-        // Actually, let's add a sharpening pass to make it crisp.
+        // 2. Upscale with Jimp
+        // Target: 4K (roughly 4096px width)
+        console.log('[Upscale] Resizing to 4K...');
+        image
+            .resize(4096, Jimp.AUTO) // Resize width to 4096, maintain aspect ratio
+            .quality(90);            // Set high quality
 
-        const upscaledBuffer = await sharp(buffer)
-            .resize({
-                width: 4096,
-                withoutEnlargement: false, // Force upscale
-                kernel: 'lanczos3'
-            })
-            .sharpen() // Add a bit of crispness
-            .png()
-            .toBuffer();
+        const upscaledBuffer = await image.getBufferAsync(Jimp.MIME_PNG);
 
         // 3. Upload to Supabase
         const fileName = `upscales/${session.user.email}/${imageId}-4k-${Date.now()}.png`;
